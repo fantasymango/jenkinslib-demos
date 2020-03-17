@@ -1,0 +1,79 @@
+#!groovy
+@Libray('jenkinslib-github-mango') _
+
+def tools = new org.devops.tools()
+
+String workspace = "/data/jenkins/workspace"
+pipeline {
+    agent {
+        node {
+            label "build" //指定运行节点的标签或者名称
+			customWorkspace "${workspace}" //指定运行工作目录
+        }
+    }
+	options {
+		timestamps() //日志记录时间
+		skipDefaultCheckout() //删除隐式checkout scm语句
+		disableConcurrentBuilds() //禁止并行
+		timeout(time: 30, unit: "MINUTES") // 流水线超时时间
+	}
+	stages {
+		//下载代码
+		stage("GetCode") { //阶段名称
+			steps { //步骤
+				timeout(time: 5, unit: "MINUTES") { //步骤超时时间
+					script { //填写运行代码
+						println('获取代码')
+					}
+				}
+			}
+		}
+		// 构建
+		stage("Build") {
+			steps {
+				timeout(time: 20,unit: "MINUTES") {
+					script {
+						println('应用打包')
+					}
+				}
+			}
+		}
+		// 代码扫描
+		stage("CodeScan") {
+			steps {
+				timeout(time: 30, unit: "MINUTES") {
+					script {
+						println('代码扫描')
+						tools.PrintMsg("This is my jenkins sharelibrary Msg")
+					}
+				}
+			}
+		}
+	}
+	// 构建后操作
+	post {
+		always { //总是执行脚本片段
+			script {
+				println('always')
+			}
+		}
+		// 成功后执行
+		success {
+			script {
+				currentBuild.description = "\n构建成功！"
+			}
+		}
+		//失败后执行
+		failure {
+			script {
+				currentBuild.description = "\n构建失败..."
+			}
+		}
+		//取消时执行
+		aborted {
+			script {
+				currentBuild.description = "\n构建取消..."
+			}
+		}
+	}
+}
