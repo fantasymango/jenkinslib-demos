@@ -45,6 +45,7 @@ pipeline {
 					script {
 						println('代码扫描')
 						tools.PrintMsg("This is my jenkins sharelibrary Msg")
+						tools.PrintMes("This is an ansicolor message","green")
 					}
 				}
 			}
